@@ -1,7 +1,7 @@
 # skt_conn
 #### Client-Server Communication Made Easy (in C)
 
-**Current Version: Beta**
+**Current Version: Unfinished**
 
 ## Index
 
