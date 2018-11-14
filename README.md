@@ -5,13 +5,13 @@
 
 ## Index
 
-* 1. [Description](https://github.com/BryanMorfe/skt_conn/README.md#description)
-* 2. [Features](https://github.com/BryanMorfe/skt_conn/README.md#features)
-* 3. [Platforms](https://github.com/BryanMorfe/skt_conn/README.md#platforms)
-* 4. [Installing](https://github.com/BryanMorfe/skt_conn/README.md#installing)
-* 5. [Using As Server](https://github.com/BryanMorfe/skt_conn/README.md#server)
-* 6. [Using As Client](https://github.com/BryanMorfe/skt_conn/README.md#client)
-* 7. [Other Features](https://github.com/BryanMorfe/skt_conn/README.md#other)
+* 1. [Description](https://github.com/BryanMorfe/skt_conn/blob/master/README.md#description)
+* 2. [Features](https://github.com/BryanMorfe/skt_conn/blob/master/README.md#features)
+* 3. [Platforms](https://github.com/BryanMorfe/skt_conn/blob/master/README.md#platforms)
+* 4. [Installing](https://github.com/BryanMorfe/skt_conn/blob/master/README.md#installing)
+* 5. [Using As Server](https://github.com/BryanMorfe/skt_conn/blob/master/README.md#server)
+* 6. [Using As Client](https://github.com/BryanMorfe/skt_conn/blob/master/README.md#client)
+* 7. [Other Features](https://github.com/BryanMorfe/skt_conn/blob/master/README.md#other)
 
 ### Description
 skt_conn is event-driven client-server communication interface for the C programming language.
