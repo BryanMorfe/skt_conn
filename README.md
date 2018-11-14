@@ -1,5 +1,5 @@
 # skt_conn
-#### The cool C networking interface
+#### Client-Server Communication Made Easy (in C)
 
 **Current Version: Beta**
 
