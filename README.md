@@ -31,7 +31,7 @@ N/A
 ### Server
 ```C
 /* Handler */
-void *msg_handler(void *data);
+void msg_handler(void *data);
 int main()
 {
 
@@ -116,8 +116,8 @@ int main()
 ```C
 
 /* Event handlers */
-void *new_clt_handler(struct sc_clt_meta *clts, int *n_clts);
-void *msg_handler(void *data);
+void new_clt_handler(struct sc_clt_meta *clts, int *n_clts);
+void msg_handler(void *data);
 
 int main()
 {
@@ -158,8 +158,8 @@ int main()
 ```C
 
 /* Event handlers */
-void *new_clt_handler(struct sc_clt_meta *clts, int *n_clts);
-void *msg_handler(void *data);
+void new_clt_handler(struct sc_clt_meta *clts, int *n_clts);
+void msg_handler(void *data);
 
 int main()
 {
