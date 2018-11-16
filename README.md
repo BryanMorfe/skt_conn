@@ -155,6 +155,22 @@ int main()
 ```
 
 ##### Client
+```C
 
+/* Event handlers */
+void *new_clt_handler(struct sc_clt_meta *clts, int *n_clts);
+void *msg_handler(void *data);
+
+int main()
+{
+    /* Server metadata */
+    struct sc_meta serv;
+    strcpy(serv.addr.ip_addr, "127.0.0.1");
+    serv.port = 3463;
+  
+    /* Client Prep */
+    int status = clt_comm_prep(serv, ipv4, tcp);
+}
+```
 
 #### Simple 
