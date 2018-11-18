@@ -1,24 +1,33 @@
 # skt_conn
-#### The cool networking interface
+#### Client-Server Communication Made Easy (in C)
 
-**Current Version: Beta**
+**Current Version: Unfinished**
 
 ## Index
 
-* 1. [Description](https://github.com/BryanMorfe/skt_conn/README.md#description)
-* 2. [Features](https://github.com/BryanMorfe/skt_conn/README.md#features)
-* 3. [Platforms](https://github.com/BryanMorfe/skt_conn/README.md#platforms)
-* 4. [Installing](https://github.com/BryanMorfe/skt_conn/README.md#installing)
-* 5. [Using As Server](https://github.com/BryanMorfe/skt_conn/README.md#server)
-* 6. [Using As Client](https://github.com/BryanMorfe/skt_conn/README.md#client)
-* 7. [Other Features](https://github.com/BryanMorfe/skt_conn/README.md#other)
+* 1. [Description](https://github.com/BryanMorfe/skt_conn/blob/master/README.md#description)
+* 2. [Features](https://github.com/BryanMorfe/skt_conn/blob/master/README.md#features)
+* 3. [TODO](https://github.com/BryanMorfe/skt_conn/blob/master/README.md#todo)
+* 3. [Platforms](https://github.com/BryanMorfe/skt_conn/blob/master/README.md#platforms)
+* 4. [Installing](https://github.com/BryanMorfe/skt_conn/blob/master/README.md#installing)
+* 5. [Using As Server](https://github.com/BryanMorfe/skt_conn/blob/master/README.md#server)
+* 6. [Using As Client](https://github.com/BryanMorfe/skt_conn/blob/master/README.md#client)
+* 7. [Other Features](https://github.com/BryanMorfe/skt_conn/blob/master/README.md#other)
 
 ### Description
-skt_conn is an interface that uses *socket programming* in C to allow *easy* data transfer.
+skt_conn is event-driven client-server communication interface for the C programming language.
 
 ### Features
-* Can be used as a client to send data
-* Can be used as a server to receive data
+skt_conn can be:
+* Configured as a client to send messages to a server;
+* Configured as a server to receive messages from clients; and,
+* Configured for bidirection communication between an skt_conn configured client and an skt_conn configured server.
+
+### TODO
+* Code the C file
+* Finish the header file
+* Finish Installation guide
+* Update README with updated and correct examples
 
 ### Platforms
 N/A
@@ -28,6 +37,8 @@ N/A
 
 ### Server
 ```C
+/* Handler */
+void msg_handler(void *data);
 int main()
 {
 
@@ -42,18 +53,8 @@ int main()
     }
   
     /* Receive data */
-    int dat_stat;
     void data[4096]; // 4Kb of data max
-    while ((dat_stat = serv_wait_clt_comm(data, NULL)) != SERV_CONN_ERR)
-        // do something with data, handle errors
-  
-    int status = stop_listen();
-  
-    // Only get to this point if data error has occured
-    // You may choose to handle error inside the loop and continue to receive data
-    if (dat_stat == SERV_CONN_ERR) {
-        // error with connection
-    }
+    serv_msg_rec(msg_handler, data);
   
     return 0;
 }
@@ -122,13 +123,13 @@ int main()
 ```C
 
 /* Event handlers */
-void *new_clt_handler(struct sc_clt_meta *clts, int *n_clts);
-void *msg_handler(void *data);
+void new_clt_handler(struct sc_clt_meta *clts, int *n_clts);
+void msg_handler(void *data);
 
 int main()
 {
     /* Server metadata */
-    struct serv_meta serv;
+    struct sc_meta serv;
     strcpy(serv.addr.ip_addr, "127.0.0.1");
     serv.port = 3463;
   
@@ -161,6 +162,22 @@ int main()
 ```
 
 ##### Client
+```C
 
+/* Event handlers */
+void new_clt_handler(struct sc_clt_meta *clts, int *n_clts);
+void msg_handler(void *data);
+
+int main()
+{
+    /* Server metadata */
+    struct sc_meta serv;
+    strcpy(serv.addr.ip_addr, "127.0.0.1");
+    serv.port = 3463;
+  
+    /* Client Prep */
+    int status = clt_comm_prep(serv, ipv4, tcp);
+}
+```
 
 #### Simple 
