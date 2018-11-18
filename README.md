@@ -7,6 +7,7 @@
 
 * 1. [Description](https://github.com/BryanMorfe/skt_conn/blob/master/README.md#description)
 * 2. [Features](https://github.com/BryanMorfe/skt_conn/blob/master/README.md#features)
+* 3. [TODO](https://github.com/BryanMorfe/skt_conn/blob/master/README.md#todo)
 * 3. [Platforms](https://github.com/BryanMorfe/skt_conn/blob/master/README.md#platforms)
 * 4. [Installing](https://github.com/BryanMorfe/skt_conn/blob/master/README.md#installing)
 * 5. [Using As Server](https://github.com/BryanMorfe/skt_conn/blob/master/README.md#server)
@@ -21,6 +22,12 @@ skt_conn can be:
 * Configured as a client to send messages to a server;
 * Configured as a server to receive messages from clients; and,
 * Configured for bidirection communication between an skt_conn configured client and an skt_conn configured server.
+
+### TODO
+* Code the C file
+* Finish the header file
+* Finish Installation guide
+* Update README with updated and correct examples
 
 ### Platforms
 N/A
