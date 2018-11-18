@@ -1,6 +1,10 @@
 /*
- * SKT_CONN allows for easy connection to server. It can be configured to be a
- * server or a client. It allows the use of TCP and UDP connections, IPv4 and IPv6
+ * skt_conn.h contains the prototypes and definitions of types
+ * of the SKT_CONN library. This file is part of the skt_conn
+ * repository located at https://github.com/BryanMorfe/skt_conn
+ * and as such is governed by the LICENSE file at that repository.
+ * For more information or updated files, visit the repository at
+ * the url indicated above.
  */
 
 #ifndef SKT_CONN_H
