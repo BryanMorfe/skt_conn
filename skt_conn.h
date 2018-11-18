@@ -10,13 +10,28 @@
 #ifndef SKT_CONN_H
 #define SKT_CONN_H
 
-/* Headers */
+/**** Headers ****/
 #include <sys/socket.h>
 #include <stdint.h>
 
-/* Constants */
+/**** Constants ****/
 #define MX_HN_LENGTH    100
 #define MX_IP_LENGTH    18
+
+/*** Error Codes ***/
+/* Client Error Codes */
+#define CLT_CONN_ERR    40
+#define CLT_SEND_ERR    41
+#define CLT_RECV_ERR    42
+#define CLT_CONC_ERR    43
+
+/* Server Error Codes */
+#define SERV_INVAL_META 50
+#define SERV_LIST_ERR   51
+#define SERV_SEND_ERR   52
+#define SERV_RECV_ERR   53
+#define SERV_STOP_ERR   54
+#define SERV_BIND_ERR   55
 
 
 /*** Types ***/
