@@ -69,12 +69,61 @@ struct sc_clt_meta
  */
 
 /* If configured as server, use these functions */
-int serv_listen(struct sc_meta serv_meta, enum ip_prot_ver *ip_ver, enum trans_prot *trans_prot);
-int serv_listen(char *hostname, char *ip_addr, enum ip_prot_ver *ip_ver, enum trans_prot *trans_prot);
-int serv_new_clt(struct sc_clt_meta *clts, int n_clts, int max_clts, void *hdlr);
-int send_dat_rec(void *data, void *hdlr);
+
+/*
+ ========================================================================
+ =                              serv_listen                             =
+ ========================================================================
+ = This creates a socket, binds it, starts listening, and accepting     =
+ = connections. This uses a thread approach that allows simultaneous    =
+ = receiving of data from multiple clients in a non-blocking way.       =
+ = If handlers are used for new clients, they will be executed after    =
+ = the events occur. The function itself is blocking and handlers must  =
+ = be set if a response-per-event is required.                          =
+ ========================================================================
+ */
+int serv_listen(struct sc_meta serv_meta, enum ip_prot_ver ip_ver,
+                enum trans_prot trans_prot);
+int serv_listen(char *addr, char *port, enum ip_prot_ver ip_ver,
+                enum trans_prot trans_prot);
+
+/*
+ ========================================================================
+ =                              serv_dat_recv                           =
+ ========================================================================
+ = Receive data from connected clients. If an event handler was         =
+ = specified for this event, it will be called upon successful or       =
+ = unsuccessful completion of message                                   =
+ ========================================================================
+ */
+int serv_dat_recv(void *data);
+
+/*
+ ========================================================================
+ =                              serv_dat_send                           =
+ ========================================================================
+ = Send data to specified connected client                              =
+ ========================================================================
+ */
 int serv_dat_send(struct sc_clt_meta *clt, void *data);
-int stop_listen();
+
+/*
+ ========================================================================
+ =                              serv_open_conn                          =
+ ========================================================================
+ = Get the list of connected clients and returns number of clients.     =
+ ========================================================================
+ */
+int serv_open_conn(struct sc_clt_meta *clts);
+
+/*
+ ========================================================================
+ =                              stop_serv                               =
+ ========================================================================
+ = Clean up and stop listening                                          =
+ ========================================================================
+ */
+int stop_serv();
 
 /*
  * If configured as a client:
@@ -83,11 +132,63 @@ int stop_listen();
  * 3) When done, close communication
  */
 
+/********** Setting Event handlers **********/
+
+/* Client-server handler */
+int evt_new_msg_hdlr(void (*hdlr)(void *));
+int evt_msg_snt_hdlr(void (*hdlr)(void *));
+
+/* Server-only handler */
+int evt_new_clt_hdlr(void (*hdlr)(struct sc_clt_meta *, int *));
+int evt_clt_dis_hdlr(void (*hdlr)(struct sc_clt_meta *));
+
+/* Client-only handler */
+int evt_contd_hdlr(void (*hdlr)(struct sc_meta *, int));
+int evt_disconn_hdlr(void (*hdlr)(struct sc_meta *));
+
 /* If configured as a client, use these functions */
-int clt_comm_prep(struct sc_meta serv_meta, enum ip_prot_ver *ip_ver, enum trans_prot *trans_prot);
-int clt_comm_prep(char *hostname, char *ip_addr, enum ip_prot_ver *ip_ver, enum trans_prot *trans_prot);
-int send_data(void *data);
-int close_comm();
+
+/*
+ ========================================================================
+ =                              clt_conn                                =
+ ========================================================================
+ = Prepares a client's socket and attempts to connect to the server     =
+ = specified in the sc_meta structure. The event handler connected      =
+ = is called if it was specified with the evt_contd_hdlr                =
+ ========================================================================
+ */
+int clt_conn(struct sc_meta serv_meta, enum ip_prot_ver *ip_ver,
+             enum trans_prot *trans_prot);
+int clt_conn(char *addr, char *port, enum ip_prot_ver *ip_ver,
+             enum trans_prot *trans_prot);
+
+/*
+ ========================================================================
+ =                              clt_dat_send                            =
+ ========================================================================
+ = Send data to connected server. If event handler was set it is called =
+ ========================================================================
+ */
+int clt_dat_send(void *data);
+
+/*
+ ========================================================================
+ =                              clt_dat_recv                            =
+ ========================================================================
+ = Receive data from connected server. If event handler was set, it is  =
+ = called and received data is passed.                                  =
+ ========================================================================
+ */
+int clt_dat_recv();
+
+/*
+ ========================================================================
+ =                              clt_close_conn                          =
+ ========================================================================
+ = Cleanup and close connection to server. Handler called if set        =
+ ========================================================================
+ */
+int clt_close_conn();
 
 /* Retrieve connection status */
 void get_conn_stat(struct conn_status *conn_stat);
