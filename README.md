@@ -28,6 +28,7 @@ skt_conn can be:
 * Finish the header file
 * Finish Installation guide
 * Update README with updated and correct examples
+* Test in different platforms
 
 ### Platforms
 N/A
