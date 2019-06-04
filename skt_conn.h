@@ -18,6 +18,7 @@
 /**** Constants ****/
 #define MX_HN_LENGTH    100
 #define MX_IP_LENGTH    18
+#define MX_MSG_LENGTH   16384
 
 /*** Error Codes ***/
 /* Client Error Codes */
@@ -37,6 +38,10 @@
 #define SERV_ACPT_ERR   57
 #define SERV_THRD_ERR   58
 #define SERV_INVL_CFG   59
+#define SERV_INVL_DAT   60
+#define SERV_INVL_CLT   61
+#define SERV_INVL_MSG   62
+#define SERV_STAT_ERR   63
 
 /*** Sucess Codes ***/
 #define CLT_SUCCESS     20
@@ -60,10 +65,31 @@ enum trans_prot
     udp = SOCK_DGRAM
 };
 
+enum sc_serv_status
+{
+    stopped = 0,
+    running = 1,
+    failed = 2
+};
+
 union sc_addr
 {
     char hostname[MX_HN_LENGTH];
     char ip_addr[MX_IP_LENGTH];
+};
+
+struct sc_msg
+{
+    /* Headers */
+    int  src_sockfd;
+    int  dst_sockfd;
+    int  msg_size;
+    int  trans_timestamp;
+    int  msg_type;
+    void *ots_hds;
+    
+    /* Content */
+    void *data;
 };
 
 struct sc_meta
@@ -75,10 +101,9 @@ struct sc_meta
 struct sc_serv_conf
 {
     uint16_t max_conc_clts;
-    
 };
 
-struct conn_status
+struct sc_conn_status
 {
     uint8_t          conn;
     struct           serv_meta serv;
@@ -119,7 +144,7 @@ struct sc_clt_meta
  */
 int serv_start(struct sc_meta serv_meta, enum ip_prot_ver ip_ver,
                struct sc_serv_conf *conf, enum trans_prot trans_prot);
-int serv_start(char *addr, char *port, enum ip_prot_ver ip_ver,
+int serv_start(char *addr, port_t port, enum ip_prot_ver ip_ver,
                struct sc_serv_conf *conf, enum trans_prot trans_prot);
 
 /*
@@ -131,7 +156,7 @@ int serv_start(char *addr, char *port, enum ip_prot_ver ip_ver,
  = unsuccessful completion of message                                   =
  ========================================================================
  */
-int serv_dat_recv(void *data);
+int serv_dat_recv(struct sc_clt_meta *clt, struct sc_msg *msg);
 
 /*
  ========================================================================
@@ -140,7 +165,7 @@ int serv_dat_recv(void *data);
  = Send data to specified connected client                              =
  ========================================================================
  */
-int serv_dat_send(struct sc_clt_meta *clt, void *data);
+int serv_dat_send(struct sc_clt_meta *clt, struct sc_msg *msg);
 
 /*
  ========================================================================
@@ -150,6 +175,15 @@ int serv_dat_send(struct sc_clt_meta *clt, void *data);
  ========================================================================
  */
 int serv_open_conn(struct sc_clt_meta *clts);
+
+/*
+ ========================================================================
+ =                              serv_status                             =
+ ========================================================================
+ = Get the server status: stopped, running, failed.                     =
+ ========================================================================
+ */
+int serv_status();
 
 /*
  ========================================================================
@@ -179,16 +213,16 @@ int stop_serv();
 /********** Setting Event handlers **********/
 
 /* Client-server handlers */
-int evt_new_msg_hdlr(void (*hdlr)(void *));
-int evt_msg_snt_hdlr(void (*hdlr)(void *));
+void evt_new_msg_hdlr(void (*hdlr)(struct sc_msg *msg));
+void evt_msg_snt_hdlr(void (*hdlr)(struct sc_msg *msg));
 
 /* Server-only handlers */
-int evt_new_clt_hdlr(void (*hdlr)(struct sc_clt_meta *, int *));
-int evt_clt_dis_hdlr(void (*hdlr)(struct sc_clt_meta *));
+void evt_new_clt_hdlr(void (*hdlr)(struct sc_clt_meta *, int *));
+void evt_clt_dis_hdlr(void (*hdlr)(struct sc_clt_meta *));
 
 /* Client-only handlers */
-int evt_contd_hdlr(void (*hdlr)(struct sc_meta *, int));
-int evt_disconn_hdlr(void (*hdlr)(struct sc_meta *));
+void evt_contd_hdlr(void (*hdlr)(struct sc_meta *, int));
+void evt_disconn_hdlr(void (*hdlr)(struct sc_meta *));
 
 /* If configured as a client, use these functions */
 
@@ -235,6 +269,6 @@ int clt_dat_recv();
 int clt_close_conn();
 
 /* Retrieve connection status */
-void get_conn_stat(struct conn_status *conn_stat);
+void get_conn_stat(struct sc_conn_status *conn_stat);
 
 #endif /* SKT_CONN_H */
