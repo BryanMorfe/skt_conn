@@ -26,6 +26,7 @@
 #define CLT_SEND_ERR    41
 #define CLT_RECV_ERR    42
 #define CLT_CONC_ERR    43
+#define CLT_SCKT_ERR    44
 
 /* Server Error Codes */
 #define SERV_INVAL_META 50
@@ -46,6 +47,11 @@
 /*** Sucess Codes ***/
 #define CLT_SUCCESS     20
 #define SERV_SUCCESS    30
+
+/*** Other Status Codes ***/
+#define CLT_CONNECTED   10
+#define CLT_FAILED      11
+#define CLT_DISCONN     12
 
 
 /*** Types ***/
@@ -106,9 +112,16 @@ struct sc_serv_conf
 struct sc_conn_status
 {
     uint8_t          conn;
-    struct           serv_meta serv;
+    struct sc_meta   serv;
     enum ip_prot_ver ip_ver;
     enum trans_prot  trans_prot;
+};
+
+struct sc_serv_meta
+{
+    int             sockfd;
+    struct sc_meta  serv_meta;
+    conn_time_t     time_conn;
 };
 
 struct sc_clt_meta
@@ -117,7 +130,7 @@ struct sc_clt_meta
     clt_id_t        clt_id;
     struct sc_meta  clt_meta;
     conn_time_t     time_conn;
-}
+};
 
 /*** Function prototypes ***/
 
@@ -235,10 +248,10 @@ void evt_disconn_hdlr(void (*hdlr)(struct sc_meta *));
  = is called if it was specified with the evt_contd_hdlr                =
  ========================================================================
  */
-int clt_conn(struct sc_meta serv_meta, enum ip_prot_ver *ip_ver,
-             enum trans_prot *trans_prot);
-int clt_conn(char *addr, char *port, enum ip_prot_ver *ip_ver,
-             enum trans_prot *trans_prot);
+int clt_conn(struct sc_meta serv_meta, enum ip_prot_ver ip_ver,
+             enum trans_prot trans_prot);
+int clt_conn(char *addr, port_t port, enum ip_prot_ver ip_ver,
+             enum trans_prot trans_prot);
 
 /*
  ========================================================================
@@ -247,7 +260,7 @@ int clt_conn(char *addr, char *port, enum ip_prot_ver *ip_ver,
  = Send data to connected server. If event handler was set it is called =
  ========================================================================
  */
-int clt_dat_send(void *data);
+int clt_dat_send(struct sc_msg *msg);
 
 /*
  ========================================================================
@@ -257,7 +270,7 @@ int clt_dat_send(void *data);
  = called and received data is passed.                                  =
  ========================================================================
  */
-int clt_dat_recv();
+int clt_dat_recv(struct sc_msg *msg);
 
 /*
  ========================================================================

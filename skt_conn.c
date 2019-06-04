@@ -21,6 +21,9 @@
 
 /* Private Variables and Functions */
 
+static struct sc_serv_meta *_serv_meta = NULL;
+static struct sc_clt_meta *_clt = NULL;
+
 static struct sc_clt_meta _clts[MAX_CLTS];
 static int    n_clts = 0;
 
@@ -196,7 +199,7 @@ int serv_dat_recv(struct sc_clt_meta *clt, struct sc_msg *msg) {
             {
                 msg->src_sockfd = clt->clt_sockfd;
                     
-                if (pthread_create(serv_recv_thread[clt->clt_id], NULL,
+                if (pthread_create(&serv_recv_thread[clt->clt_id], NULL,
                                    _serv_recv, (void *)msg) == -1)
                     exit_msg = SERV_THRD_ERR;
                 else
@@ -209,6 +212,8 @@ int serv_dat_recv(struct sc_clt_meta *clt, struct sc_msg *msg) {
 }
 
 int serv_dat_send(struct sc_clt_meta *clt, struct sc_msg *msg) {
+    msg->src_sockfd = _serv_meta->sockfd;
+    msg->dst_sockfd = clt->clt_sockfd;
     return 0;
 }
 
@@ -248,7 +253,7 @@ int stop_serv() {
         pthread_cancel(serv_listen_thread);
         exit_msg = SERV_SUCCESS;
         
-        _serv_status = failed;
+        _serv_status = stopped;
         
         if (stat_changed_hdlr != NULL)
             stat_changed_hdlr(_serv_status);
@@ -268,11 +273,69 @@ int stop_serv() {
 
 /* Client Function Implementations */
 
-int clt_dat_send(void *data) {
+int clt_conn(struct sc_meta serv_meta, enum ip_prot_ver ip_ver,
+             enum trans_prot trans_prot) {
+    
+    int exit_msg, sockfd;
+    
+    // Initialize connection
+    conn_status = (struct sc_conn_status *)malloc(sizeof(struct sc_conn_status));
+    conn_status->conn = CLT_DISCONN;
+    conn_status->serv = serv_meta;
+    conn_status->ip_ver = ip_ver;
+    conn_status->trans_prot = trans_prot;
+    
+    sockfd = socket(ip_ver, trans_prot, 0);
+    
+    if (sockfd == -1)
+    {
+        exit_msg = CLT_SCKT_ERR;
+        conn_status->conn = CLT_FAILED;
+    }
+    else
+    {
+        struct sockaddr_in addr;
+        addr.sin_family      = ip_ver;
+        addr.sin_port        = htons(serv_meta.port);
+        addr.sin_addr.s_addr = htonl(serv_meta.addr.ip_ver);
+        
+        if (connect(sockfd, (struct sockaddr *)&addr, sizeof(addr)) == -1)
+        {
+            exit_msg = CLT_CONN_ERR;
+            conn_status->conn = CLT_FAILED;
+        }
+        else
+        {
+            exit_msg = CLT_SUCCESS;
+            conn_status->conn = CLT_CONNECTED;
+        }
+    }
+    
+    return exit_msg;
+}
+
+int clt_conn(char *addr, port_t port, enum ip_prot_ver ip_ver,
+             enum trans_prot trans_prot) {
+    
+    int exit_msg;
+    
+    struct sc_meta serv_meta;
+    strcpy(serv_meta.addr.ip_addr, addr);
+    serv_meta.port = port;
+    
+    exit_msg = clt_conn(serv_meta, ip_ver, conf, trans_prot);
+    
+    return exit_msg;
+}
+
+int clt_dat_send(struct sc_msg *msg) {
+    
+    msg->src_sockfd = _clt->clt_sockfd;
+    msg->dst_sockfd = _serv_meta->sockfd;
     return 0;
 }
 
-int clt_dat_recv() {
+int clt_dat_recv(struct sc_msg *msg) {
     return 0;
 }
 
