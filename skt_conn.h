@@ -12,6 +12,7 @@
 
 /**** Headers ****/
 #include <sys/socket.h>
+#include <arpa/inet.h>
 #include <stdint.h>
 
 /**** Constants ****/
@@ -32,6 +33,14 @@
 #define SERV_RECV_ERR   53
 #define SERV_STOP_ERR   54
 #define SERV_BIND_ERR   55
+#define SERV_SCKT_ERR   56
+#define SERV_ACPT_ERR   57
+#define SERV_THRD_ERR   58
+#define SERV_INVL_CFG   59
+
+/*** Sucess Codes ***/
+#define CLT_SUCCESS     20
+#define SERV_SUCCESS    30
 
 
 /*** Types ***/
@@ -63,6 +72,12 @@ struct sc_meta
     port_t        port;
 };
 
+struct sc_serv_conf
+{
+    uint16_t max_conc_clts;
+    
+};
+
 struct conn_status
 {
     uint8_t          conn;
@@ -73,6 +88,7 @@ struct conn_status
 
 struct sc_clt_meta
 {
+    int             clt_sockfd;
     clt_id_t        clt_id;
     struct sc_meta  clt_meta;
     conn_time_t     time_conn;
@@ -91,7 +107,7 @@ struct sc_clt_meta
 
 /*
  ========================================================================
- =                              serv_listen                             =
+ =                              serv_start                              =
  ========================================================================
  = This creates a socket, binds it, starts listening, and accepting     =
  = connections. This uses a thread approach that allows simultaneous    =
@@ -101,10 +117,10 @@ struct sc_clt_meta
  = be set if a response-per-event is required.                          =
  ========================================================================
  */
-int serv_listen(struct sc_meta serv_meta, enum ip_prot_ver ip_ver,
-                enum trans_prot trans_prot);
-int serv_listen(char *addr, char *port, enum ip_prot_ver ip_ver,
-                enum trans_prot trans_prot);
+int serv_start(struct sc_meta serv_meta, enum ip_prot_ver ip_ver,
+               struct sc_serv_conf *conf, enum trans_prot trans_prot);
+int serv_start(char *addr, char *port, enum ip_prot_ver ip_ver,
+               struct sc_serv_conf *conf, enum trans_prot trans_prot);
 
 /*
  ========================================================================
@@ -137,6 +153,15 @@ int serv_open_conn(struct sc_clt_meta *clts);
 
 /*
  ========================================================================
+ =                              serv_wait                               =
+ ========================================================================
+ = Blocks the main thread and waits for the server to be stopped.       =
+ ========================================================================
+ */
+int serv_wait();
+
+/*
+ ========================================================================
  =                              stop_serv                               =
  ========================================================================
  = Clean up and stop listening                                          =
@@ -153,15 +178,15 @@ int stop_serv();
 
 /********** Setting Event handlers **********/
 
-/* Client-server handler */
+/* Client-server handlers */
 int evt_new_msg_hdlr(void (*hdlr)(void *));
 int evt_msg_snt_hdlr(void (*hdlr)(void *));
 
-/* Server-only handler */
+/* Server-only handlers */
 int evt_new_clt_hdlr(void (*hdlr)(struct sc_clt_meta *, int *));
 int evt_clt_dis_hdlr(void (*hdlr)(struct sc_clt_meta *));
 
-/* Client-only handler */
+/* Client-only handlers */
 int evt_contd_hdlr(void (*hdlr)(struct sc_meta *, int));
 int evt_disconn_hdlr(void (*hdlr)(struct sc_meta *));
 
